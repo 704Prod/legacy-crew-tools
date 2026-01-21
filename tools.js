@@ -26,6 +26,14 @@ const TOOLS = [
     url: "https://704prod.github.io/artist-calendar-helper/",
     repo: "https://github.com/704prod/artist-calendar-helper",
   },
+  {
+  name: "Artist Training Planner",
+  division: ["Entertainment","APS","VPS","BIS"],
+  type: "Training",
+  description: "Division-mapped artist training checklist + session plan generator with copy/export.",
+  url: "https://704prod.github.io/artist-training-planner/",
+  repo: "https://github.com/704prod/artist-training-planner"
+},
 ];
 
 // Allowed filters (controls the chip order)
