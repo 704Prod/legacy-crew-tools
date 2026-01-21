@@ -6,22 +6,21 @@
 
 const TOOLS = [
   {
-    name: "Radio Interview Question Generator",
+    name: "Radio Show Prepper",
     division: "Entertainment",
     type: "Artist Prep",
-    description: "Generate radio-ready questions by category. Useful for host prep and artist media training.",
-    url: "PASTE_TOOL_URL_HERE",
-    repo: "PASTE_REPO_URL_HERE"
+    description: "Generate radio-ready interview questions by category for hosts and artists. Used for interview prep, media training, and live show flow.",
+    url: "https://704prod.github.io/radio-show-prepper/",
+    repo: "https://github.com/704prod/radio-show-prepper"
   },
-  // Add more tools here
-  // {
-  //   name: "Naming Convention Helper",
-  //   division: "Production",
-  //   type: "Ops",
-  //   description: "Build compliant file names from form fields (ORDER#_DDMMYYYY_CLIENT + customer name).",
-  //   url: "https://...",
-  //   repo: "https://github.com/..."
-  // },
+  {
+    name: "Artist Calendar Helper",
+    division: "Entertainment",
+    type: "Scheduling",
+    description: "Plan, visualize, and organize artist schedules, releases, and events in a clean calendar-focused workflow.",
+    url: "https://704prod.github.io/artist-calendar-helper/",
+    repo: "https://github.com/704prod/artist-calendar-helper"
+  }
 ];
 
 const grid = document.getElementById("grid");
