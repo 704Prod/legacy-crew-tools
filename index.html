@@ -1,1 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Legacy Crew | Tools Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="mark">LC</div>
+      <div>
+        <div class="title">Legacy Crew Tools</div>
+        <div class="subtitle">Internal utilities dashboard</div>
+      </div>
+    </div>
 
+    <div class="header-actions">
+      <input id="search" class="search" type="search" placeholder="Search tools…" autocomplete="off" />
+      <a class="btn" id="newToolBtn" href="#request">Request a tool</a>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Tools</h2>
+        <div class="meta"><span id="count">0</span> tools</div>
+      </div>
+
+      <div id="grid" class="grid" aria-live="polite"></div>
+    </section>
+
+    <section id="request" class="panel">
+      <div class="panel-head">
+        <h2>Request a new tool</h2>
+        <div class="meta">This generates a copy-pastable request.</div>
+      </div>
+
+      <div class="request">
+        <label class="label">Tool name</label>
+        <input id="reqName" class="input" placeholder="e.g., Naming Convention Helper" />
+
+        <label class="label">What should it do?</label>
+        <textarea id="reqDesc" class="textarea" rows="5" placeholder="Describe inputs, outputs, and any rules/constraints."></textarea>
+
+        <label class="label">Target users</label>
+        <input id="reqUsers" class="input" placeholder="e.g., APS/VPS editors, artists, SMM" />
+
+        <div class="buttons">
+          <button class="btn primary" id="genRequest">Generate request</button>
+          <button class="btn" id="copyRequest">Copy</button>
+          <button class="btn danger" id="clearRequest">Clear</button>
+        </div>
+
+        <pre id="requestOut" class="output" tabindex="0"></pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>Legacy Crew Tools Hub</div>
+      <div class="footer-right">
+        <a id="manageLink" href="#" target="_blank" rel="noreferrer">Manage tools list</a>
+      </div>
+    </footer>
+  </main>
+
+  <script src="tools.js"></script>
+</body>
+</html>
