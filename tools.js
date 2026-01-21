@@ -23,12 +23,17 @@ const TOOLS = [
   }
 ];
 
+// Allowed filters (controls the chip order)
+const DIVISION_FILTERS = ["All", "APS", "VPS", "BIS", "Entertainment"];
+
 const grid = document.getElementById("grid");
 const count = document.getElementById("count");
 const search = document.getElementById("search");
 
 const manageLink = document.getElementById("manageLink");
 manageLink.href = `${location.origin}${location.pathname}`.replace(/index\.html?$/,"") + "tools.js";
+
+let activeDivision = "All";
 
 function escapeHtml(s){
   return String(s)
@@ -44,7 +49,7 @@ function render(list){
   count.textContent = String(list.length);
 
   if (!list.length) {
-    grid.innerHTML = `<div class="desc">No matches. Clear search to show all tools.</div>`;
+    grid.innerHTML = `<div class="desc">No matches. Clear search or change division filter.</div>`;
     return;
   }
 
@@ -74,25 +79,81 @@ function render(list){
   }
 }
 
-function filterTools(q){
-  const s = q.trim().toLowerCase();
-  if (!s) return TOOLS;
+function filterTools(q, division){
+  const s = (q || "").trim().toLowerCase();
 
   return TOOLS.filter(t => {
+    const matchesDivision =
+      division === "All" ? true : String(t.division || "").toLowerCase() === division.toLowerCase();
+
+    if (!matchesDivision) return false;
+
+    if (!s) return true;
+
     const hay = [
       t.name, t.division, t.type, t.description
     ].filter(Boolean).join(" ").toLowerCase();
+
     return hay.includes(s);
   });
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Division filter UI (chips) - injected under the header
+// ─────────────────────────────────────────────────────────────────────────────
+
+function injectDivisionChips(){
+  const header = document.querySelector(".header");
+  if (!header) return;
+
+  const wrap = document.createElement("div");
+  wrap.className = "chips-wrap";
+  wrap.innerHTML = `
+    <div class="chips" role="tablist" aria-label="Division filters">
+      ${DIVISION_FILTERS.map(d => `
+        <button class="chip" data-division="${escapeHtml(d)}" role="tab" aria-selected="${d === activeDivision}">
+          ${escapeHtml(d)}
+        </button>
+      `).join("")}
+    </div>
+  `;
+
+  header.insertAdjacentElement("afterend", wrap);
+
+  wrap.addEventListener("click", (e) => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+
+    activeDivision = btn.getAttribute("data-division") || "All";
+
+    // update selected states
+    wrap.querySelectorAll(".chip").forEach(b => {
+      const isActive = (b.getAttribute("data-division") === activeDivision);
+      b.classList.toggle("active", isActive);
+      b.setAttribute("aria-selected", String(isActive));
+    });
+
+    render(filterTools(search.value, activeDivision));
+  });
+
+  // set initial active class
+  wrap.querySelectorAll(".chip").forEach(b => {
+    const isActive = (b.getAttribute("data-division") === activeDivision);
+    b.classList.toggle("active", isActive);
+  });
+}
+
 search.addEventListener("input", () => {
-  render(filterTools(search.value));
+  render(filterTools(search.value, activeDivision));
 });
 
-render(TOOLS);
+injectDivisionChips();
+render(filterTools("", activeDivision));
 
+// ─────────────────────────────────────────────────────────────────────────────
 // Request generator
+// ─────────────────────────────────────────────────────────────────────────────
+
 const reqName = document.getElementById("reqName");
 const reqDesc = document.getElementById("reqDesc");
 const reqUsers = document.getElementById("reqUsers");
@@ -115,6 +176,7 @@ document.getElementById("genRequest").addEventListener("click", () => {
     "Notes:",
     "- Must be usable in-browser (GitHub Pages).",
     "- Must include a 'Back to Tools Hub' link.",
+    "- Must declare division: APS / VPS / BIS / Entertainment."
   ].join("\n");
 
   requestOut.textContent = out;
