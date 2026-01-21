@@ -1,26 +1,31 @@
 /**
  * Legacy Crew Tools Hub
- * Edit the TOOLS array only.
- * Each item should point to the tool's live URL (GitHub Pages or elsewhere).
+ * Edit the TOOLS array to add/remove tools.
+ * Each tool points to a live URL (GitHub Pages or elsewhere).
+ *
+ * Division is an ARRAY to support multi-division tools:
+ *   division: ["APS", "VPS"]
  */
 
 const TOOLS = [
   {
     name: "Radio Show Prepper",
-    division: "Entertainment",
+    division: ["Entertainment"],
     type: "Artist Prep",
-    description: "Generate radio-ready interview questions by category for hosts and artists. Used for interview prep, media training, and live show flow.",
+    description:
+      "Generate radio-ready interview questions by category for hosts and artists. Used for interview prep, media training, and live show flow.",
     url: "https://704prod.github.io/radio-show-prepper/",
-    repo: "https://github.com/704prod/radio-show-prepper"
+    repo: "https://github.com/704prod/radio-show-prepper",
   },
   {
     name: "Artist Calendar Helper",
-    division: "Entertainment",
+    division: ["Entertainment"],
     type: "Scheduling",
-    description: "Plan, visualize, and organize artist schedules, releases, and events in a clean calendar-focused workflow.",
+    description:
+      "Plan, visualize, and organize artist schedules, releases, and events in a clean calendar-focused workflow.",
     url: "https://704prod.github.io/artist-calendar-helper/",
-    repo: "https://github.com/704prod/artist-calendar-helper"
-  }
+    repo: "https://github.com/704prod/artist-calendar-helper",
+  },
 ];
 
 // Allowed filters (controls the chip order)
@@ -31,20 +36,22 @@ const count = document.getElementById("count");
 const search = document.getElementById("search");
 
 const manageLink = document.getElementById("manageLink");
-manageLink.href = `${location.origin}${location.pathname}`.replace(/index\.html?$/,"") + "tools.js";
+// points to the tools.js itself (for quick editing reference)
+manageLink.href =
+  `${location.origin}${location.pathname}`.replace(/index\.html?$/, "") + "tools.js";
 
 let activeDivision = "All";
 
-function escapeHtml(s){
+function escapeHtml(s) {
   return String(s)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-function render(list){
+function render(list) {
   grid.innerHTML = "";
   count.textContent = String(list.length);
 
@@ -53,10 +60,14 @@ function render(list){
     return;
   }
 
-  for (const t of list){
+  for (const t of list) {
     const name = escapeHtml(t.name);
     const desc = escapeHtml(t.description || "");
-    const division = escapeHtml(t.division || "—");
+
+    const division = escapeHtml(
+      Array.isArray(t.division) ? t.division.join(", ") : t.division || "—"
+    );
+
     const type = escapeHtml(t.type || "—");
 
     const url = t.url || "#";
@@ -79,20 +90,36 @@ function render(list){
   }
 }
 
-function filterTools(q, division){
+function toolHasDivision(tool, division) {
+  if (division === "All") return true;
+
+  const dv = tool.division;
+
+  if (Array.isArray(dv)) {
+    return dv.map((x) => String(x).toLowerCase()).includes(division.toLowerCase());
+  }
+
+  // backward compatibility if any tool still uses a string
+  return String(dv || "").toLowerCase() === division.toLowerCase();
+}
+
+function filterTools(q, division) {
   const s = (q || "").trim().toLowerCase();
 
-  return TOOLS.filter(t => {
-    const matchesDivision =
-      division === "All" ? true : String(t.division || "").toLowerCase() === division.toLowerCase();
-
-    if (!matchesDivision) return false;
+  return TOOLS.filter((t) => {
+    if (!toolHasDivision(t, division)) return false;
 
     if (!s) return true;
 
     const hay = [
-      t.name, t.division, t.type, t.description
-    ].filter(Boolean).join(" ").toLowerCase();
+      t.name,
+      Array.isArray(t.division) ? t.division.join(" ") : t.division,
+      t.type,
+      t.description,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
 
     return hay.includes(s);
   });
@@ -102,7 +129,7 @@ function filterTools(q, division){
 // Division filter UI (chips) - injected under the header
 // ─────────────────────────────────────────────────────────────────────────────
 
-function injectDivisionChips(){
+function injectDivisionChips() {
   const header = document.querySelector(".header");
   if (!header) return;
 
@@ -110,11 +137,15 @@ function injectDivisionChips(){
   wrap.className = "chips-wrap";
   wrap.innerHTML = `
     <div class="chips" role="tablist" aria-label="Division filters">
-      ${DIVISION_FILTERS.map(d => `
-        <button class="chip" data-division="${escapeHtml(d)}" role="tab" aria-selected="${d === activeDivision}">
+      ${DIVISION_FILTERS.map(
+        (d) => `
+        <button class="chip" data-division="${escapeHtml(d)}" role="tab" aria-selected="${
+          d === activeDivision
+        }">
           ${escapeHtml(d)}
         </button>
-      `).join("")}
+      `
+      ).join("")}
     </div>
   `;
 
@@ -127,8 +158,8 @@ function injectDivisionChips(){
     activeDivision = btn.getAttribute("data-division") || "All";
 
     // update selected states
-    wrap.querySelectorAll(".chip").forEach(b => {
-      const isActive = (b.getAttribute("data-division") === activeDivision);
+    wrap.querySelectorAll(".chip").forEach((b) => {
+      const isActive = b.getAttribute("data-division") === activeDivision;
       b.classList.toggle("active", isActive);
       b.setAttribute("aria-selected", String(isActive));
     });
@@ -137,9 +168,10 @@ function injectDivisionChips(){
   });
 
   // set initial active class
-  wrap.querySelectorAll(".chip").forEach(b => {
-    const isActive = (b.getAttribute("data-division") === activeDivision);
+  wrap.querySelectorAll(".chip").forEach((b) => {
+    const isActive = b.getAttribute("data-division") === activeDivision;
     b.classList.toggle("active", isActive);
+    b.setAttribute("aria-selected", String(isActive));
   });
 }
 
@@ -176,7 +208,7 @@ document.getElementById("genRequest").addEventListener("click", () => {
     "Notes:",
     "- Must be usable in-browser (GitHub Pages).",
     "- Must include a 'Back to Tools Hub' link.",
-    "- Must declare division: APS / VPS / BIS / Entertainment."
+    "- Must declare division(s): APS / VPS / BIS / Entertainment.",
   ].join("\n");
 
   requestOut.textContent = out;
